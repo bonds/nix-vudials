@@ -85,7 +85,7 @@ python3Packages.buildPythonApplication rec {
   doCheck = false;
 
   meta = with lib; {
-    description = "VU Server for controlling VU dials (macOS port)";
+    description = "VU Server for controlling VU dials (cross-platform)";
     homepage = "https://github.com/SasaKaranovic/VU-Server";
     license = licenses.mit;
     platforms = platforms.unix;
