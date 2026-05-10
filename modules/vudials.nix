@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 with lib; let
@@ -84,12 +85,12 @@ in {
 
   config = mkMerge [
     (mkIf cfg.enable {
-      environment.systemPackages = [config.nixpkgs.pkgs.vuserver];
+      environment.systemPackages = [pkgs.vuserver];
     })
 
-    (mkIf (cfg.enable && config.nixpkgs.hostPlatform.isDarwin) {
+    (mkIf (cfg.enable && pkgs.stdenv.isDarwin) {
       system.activationScripts.vudials.text = ''
-        _vuhash="${config.nixpkgs.pkgs.vuserver} ${config.nixpkgs.pkgs.vuclient}"
+        _vuhash="${pkgs.vuserver} ${pkgs.vuclient}"
         if [ -f "${cfg.statedir}/.vu-hash" ] && [ "$(cat "${cfg.statedir}/.vu-hash")" != "$_vuhash" ]; then
           launchctl kickstart -k gui/501/org.nixos.vuserver 2>/dev/null || true
           launchctl kickstart -k gui/501/org.nixos.vuclient 2>/dev/null || true
@@ -100,7 +101,7 @@ in {
 
       launchd.user.agents = {
         vuserver = {
-          command = "${config.nixpkgs.pkgs.vuserver}/bin/vuserver";
+          command = "${pkgs.vuserver}/bin/vuserver";
           serviceConfig = {
             KeepAlive = true;
             RunAtLoad = true;
@@ -117,7 +118,7 @@ in {
         };
 
         vuclient = {
-          command = "${config.nixpkgs.pkgs.vuclient}/bin/vuclient";
+          command = "${pkgs.vuclient}/bin/vuclient";
           serviceConfig = {
             KeepAlive = true;
             RunAtLoad = true;
@@ -139,7 +140,7 @@ in {
       };
     })
 
-    (mkIf (cfg.enable && !config.nixpkgs.hostPlatform.isDarwin) {
+    (mkIf (cfg.enable && !pkgs.stdenv.isDarwin) {
       users.users.${cfg.user} = {
         isSystemUser = true;
         group = cfg.group;
@@ -150,7 +151,7 @@ in {
 
       services.udev.extraRules = ''
         ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", ATTRS{serial}=="DQ0164KM", SYMLINK+="vuserver-$attr{serial}", TAG+="systemd", ENV{SYSTEMD_WANTS}="vuserver@$attr{serial}.service", MODE="0666"
-        ACTION=="remove", SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="0403", ENV{ID_MODEL_ID}=="6015", ENV{ID_SERIAL_SHORT}=="DQ0164KM", RUN+="${config.nixpkgs.pkgs.systemd}/bin/systemctl stop vuserver@$env{ID_SERIAL_SHORT}.service"
+        ACTION=="remove", SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="0403", ENV{ID_MODEL_ID}=="6015", ENV{ID_SERIAL_SHORT}=="DQ0164KM", RUN+="${pkgs.systemd}/bin/systemctl stop vuserver@$env{ID_SERIAL_SHORT}.service"
       '';
 
       systemd.services."vuserver@" = {
@@ -158,11 +159,11 @@ in {
         partOf = ["vuserver.target"];
 
         serviceConfig = {
-          ExecStart = "${config.nixpkgs.pkgs.vuserver}/bin/vuserver";
+          ExecStart = "${pkgs.vuserver}/bin/vuserver";
           User = cfg.user;
           Group = cfg.group;
           Restart = "on-failure";
-          WorkingDirectory = "${config.nixpkgs.pkgs.vuserver}/lib";
+          WorkingDirectory = "${pkgs.vuserver}/lib";
           RuntimeDirectory = "vuserver";
           LogsDirectory = "vuserver";
           StateDirectory = "vuserver";
@@ -186,7 +187,7 @@ in {
         wants = ["vuserver.target"];
         after = ["vuserver.target"];
         serviceConfig = {
-          ExecStart = "${config.nixpkgs.pkgs.vuclient}/bin/vuclient";
+          ExecStart = "${pkgs.vuclient}/bin/vuclient";
           TimeoutStopSec = "5s";
           Restart = "on-failure";
           Environment = [
