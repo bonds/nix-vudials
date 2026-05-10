@@ -85,7 +85,7 @@ in {
 
   config = mkIf cfg.enable (
     let
-      isDarwin = config.nixpkgs.hostPlatform.isDarwin;
+      isDarwin = pkgs.stdenv.isDarwin;
     in
       {
         environment.systemPackages = [pkgs.vuserver];
