@@ -1,7 +1,10 @@
 {
   description = "Nix packages and service module for VU dials";
 
-  outputs = {self, nixpkgs}: {
+  outputs = {
+    self,
+    nixpkgs,
+  }: {
     overlays.default = final: prev: {
       vuserver = prev.callPackage "${self}/pkgs/vuserver" {};
       vuclient = prev.callPackage "${self}/pkgs/vuclient" {};

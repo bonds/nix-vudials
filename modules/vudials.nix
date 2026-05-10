@@ -1,7 +1,8 @@
 {
   config,
   lib,
-  pkgs,
+  vuclient,
+  vuserver,
   ...
 }:
 with lib; let
@@ -85,14 +86,15 @@ in {
 
   config = mkIf cfg.enable (
     let
+      pkgs = config.nixpkgs.pkgs;
       isDarwin = pkgs.stdenv.isDarwin;
     in
       {
-        environment.systemPackages = [pkgs.vuserver];
+        environment.systemPackages = [vuserver];
       }
       // lib.optionalAttrs isDarwin {
         system.activationScripts.vudials.text = ''
-          _vuhash="${pkgs.vuserver} ${pkgs.vuclient}"
+          _vuhash="${vuserver} ${vuclient}"
           if [ -f "${cfg.statedir}/.vu-hash" ] && [ "$(cat "${cfg.statedir}/.vu-hash")" != "$_vuhash" ]; then
             launchctl kickstart -k gui/501/org.nixos.vuserver 2>/dev/null || true
             launchctl kickstart -k gui/501/org.nixos.vuclient 2>/dev/null || true
@@ -103,7 +105,7 @@ in {
 
         launchd.user.agents = {
           vuserver = {
-            command = "${pkgs.vuserver}/bin/vuserver";
+            command = "${vuserver}/bin/vuserver";
             serviceConfig = {
               KeepAlive = true;
               RunAtLoad = true;
@@ -120,7 +122,7 @@ in {
           };
 
           vuclient = {
-            command = "${pkgs.vuclient}/bin/vuclient";
+            command = "${vuclient}/bin/vuclient";
             serviceConfig = {
               KeepAlive = true;
               RunAtLoad = true;
@@ -160,11 +162,11 @@ in {
           partOf = ["vuserver.target"];
 
           serviceConfig = {
-            ExecStart = "${pkgs.vuserver}/bin/vuserver";
+            ExecStart = "${vuserver}/bin/vuserver";
             User = cfg.user;
             Group = cfg.group;
             Restart = "on-failure";
-            WorkingDirectory = "${pkgs.vuserver}/lib";
+            WorkingDirectory = "${vuserver}/lib";
             RuntimeDirectory = "vuserver";
             LogsDirectory = "vuserver";
             StateDirectory = "vuserver";
@@ -188,7 +190,7 @@ in {
           wants = ["vuserver.target"];
           after = ["vuserver.target"];
           serviceConfig = {
-            ExecStart = "${pkgs.vuclient}/bin/vuclient";
+            ExecStart = "${vuclient}/bin/vuclient";
             TimeoutStopSec = "5s";
             Restart = "on-failure";
             Environment = [
