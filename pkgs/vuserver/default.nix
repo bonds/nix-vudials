@@ -60,14 +60,14 @@ python3Packages.buildPythonApplication rec {
 import os
 import sys"
     substituteInPlace serial_driver.py \
-      --replace "while self.port.in_waiting:" \
-                "try:
-            port_in_waiting = self.port.in_waiting
-        except OSError as e:
-            if e.errno == 6:
-                sys.exit(0)
-            raise
-        while port_in_waiting:"
+      --replace "            while self.port.in_waiting:" \
+                "            try:
+                port_in_waiting = self.port.in_waiting
+            except OSError as e:
+                if e.errno == 6:
+                    sys.exit(0)
+                raise
+            while port_in_waiting:"
   '';
 
   installPhase = ''
