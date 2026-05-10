@@ -70,8 +70,8 @@ python3Packages.buildPythonApplication rec {
       --run "mkdir -p \$RUNTIMEDIR" \
       --run "cp -R $out/lib/www \$RUNTIMEDIR/www" \
       --run "chmod -R u+w \$RUNTIMEDIR" \
-      --run "export KEY=\$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)" \
-      --run "echo \$KEY > \$STATEDIR/key" \
+      --run "if [ ! -f \$STATEDIR/key ] || [ ! -s \$STATEDIR/key ]; then export KEY=\$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64) && echo \$KEY > \$STATEDIR/key; fi" \
+      --run "export KEY=\$(cat \$STATEDIR/key)" \
       --run "echo \"const API_MASTER_KEY = '\$KEY';\" > \$RUNTIMEDIR/www/assets/js/vu1_gui_root.js.tmp" \
       --run "sed 1d \$RUNTIMEDIR/www/assets/js/vu1_gui_root.js >> \$RUNTIMEDIR/www/assets/js/vu1_gui_root.js.tmp" \
       --run "mv \$RUNTIMEDIR/www/assets/js/vu1_gui_root.js.tmp \$RUNTIMEDIR/www/assets/js/vu1_gui_root.js" \
