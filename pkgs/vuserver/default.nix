@@ -55,10 +55,10 @@ python3Packages.buildPythonApplication rec {
                 "'master_key': os.environ.get('KEY')"
 
     substituteInPlace serial_driver.py \
-      --replace "import binascii" \
-                "import binascii
-import os
-import sys"
+      --replace "import time" \
+                "import os
+import sys
+import time"
     substituteInPlace serial_driver.py \
       --replace "            while self.port.in_waiting:" \
                 "            try:
