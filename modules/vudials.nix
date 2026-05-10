@@ -104,7 +104,11 @@ in {
         vuserver = {
           command = "${vuserver}/bin/vuserver";
           serviceConfig = {
-            KeepAlive = true;
+            KeepAlive = {
+              PathState = {
+                "${cfg.device}" = true;
+              };
+            };
             RunAtLoad = true;
             StandardOutPath = "${cfg.logsdir}/stdout.log";
             StandardErrorPath = "${cfg.logsdir}/stderr.log";
