@@ -53,6 +53,21 @@ python3Packages.buildPythonApplication rec {
     substituteInPlace server_config.py \
       --replace "'master_key': 'cTpAWYuRpA2zx75Yh961Cg'" \
                 "'master_key': os.environ.get('KEY')"
+
+    substituteInPlace serial_driver.py \
+      --replace "import binascii" \
+                "import binascii
+import os
+import sys"
+    substituteInPlace serial_driver.py \
+      --replace "while self.port.in_waiting:" \
+                "try:
+            port_in_waiting = self.port.in_waiting
+        except OSError as e:
+            if e.errno == 6:
+                sys.exit(0)
+            raise
+        while port_in_waiting:"
   '';
 
   installPhase = ''
