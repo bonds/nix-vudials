@@ -3,8 +3,8 @@
 
   outputs = {self, nixpkgs}: {
     overlays.default = final: prev: {
-      vuserver = prev.callPackage ./pkgs/vuserver {};
-      vuclient = prev.callPackage ./pkgs/vuclient {};
+      vuserver = prev.callPackage "${self}/pkgs/vuserver" {};
+      vuclient = prev.callPackage "${self}/pkgs/vuclient" {};
     };
 
     nixosModules.default = ./modules/vudials.nix;
