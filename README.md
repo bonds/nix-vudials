@@ -1,6 +1,6 @@
 # nix-vudials
 
-*This README was written by an AI. I apologize for any shortcomings.*
+*This README was written by AI (Deepseek v4 Pro). I apologize for any shortcomings.*
 
 Nix flake providing packages and a service module for [VU dials](https://github.com/SasaKaranovic/VU-Server) — USB-connected analog gauges that display system metrics.
 
@@ -89,7 +89,34 @@ Key options for `services.vudials`:
 ## Requirements
 
 - **macOS**: [FTDI VCP driver (dext)](https://ftdichip.com/drivers/vcp-drivers/) installed
-- **NixOS**: USB hotplug handled via udev rules in the module
+
+### NixOS: udev rules
+
+The module ships udev rules that automatically detect the VU dial hub and start the server. When enabled via `services.vudials.enable = true`, the rules:
+
+1. Create a stable symlink `/dev/vuserver-$serial` when the hub is plugged in
+2. Trigger `vuserver@$serial.service` to start the dial server for that device
+3. Stop the service when the hub is unplugged
+4. Set device permissions to `0666`
+
+The default rules match the FT230X UART chip (vendor `0403`, product `6015`) with serial `DQ0164KM`. No manual configuration is needed if your hub uses the same chip.
+
+#### Customizing for your device
+
+Find your hub's identifiers:
+```bash
+udevadm info --name=/dev/ttyUSB0 --attribute-walk | grep -E 'idVendor|idProduct|serial'
+```
+
+Override the rules in your host config if needed:
+```nix
+services.udev.extraRules = ''
+  ACTION=="add", SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", ATTRS{serial}=="YOURSERIAL", SYMLINK+="vuserver-$attr{serial}", TAG+="systemd", ENV{SYSTEMD_WANTS}="vuserver@$attr{serial}.service", MODE="0666"
+  ACTION=="remove", SUBSYSTEM=="tty", ENV{ID_VENDOR_ID}=="0403", ENV{ID_MODEL_ID}=="6015", ENV{ID_SERIAL_SHORT}=="YOURSERIAL", RUN+="${config.systemd.package}/bin/systemctl stop vuserver@$env{ID_SERIAL_SHORT}.service"
+'';
+```
+
+The module creates a `vudials` system user/group for the services.
 
 ## Further reading
 
