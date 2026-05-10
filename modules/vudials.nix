@@ -6,86 +6,85 @@
 }:
 with lib; let
   cfg = config.services.vudials;
-  isDarwin = pkgs.stdenv.isDarwin;
+  isDarwin = config.nixpkgs.hostPlatform.isDarwin;
 in {
-  options.services.vudials =
-    {
-      enable = mkEnableOption "VU Dials";
+  options.services.vudials = {
+    enable = mkEnableOption "VU Dials";
 
-      port = mkOption {
-        type = types.port;
-        default = 5340;
-        description = "Port on which VU Server listens.";
-      };
-
-      cpudial = mkOption {
-        type = types.str;
-        default = "";
-        description = "UID of the dial that will display CPU load.";
-      };
-
-      gpudial = mkOption {
-        type = types.str;
-        default = "";
-        description = "UID of the dial that will display GPU load.";
-      };
-
-      memdial = mkOption {
-        type = types.str;
-        default = "";
-        description = "UID of the dial that will display memory load.";
-      };
-
-      dskdial = mkOption {
-        type = types.str;
-        default = "";
-        description = "UID of the dial that will display disk usage on root partition.";
-      };
-    }
-    // lib.optionalAttrs isDarwin {
-      device = mkOption {
-        type = types.str;
-        default = "/dev/cu.usbserial-DQ0164KM";
-        description = "Serial device path for the VU1 hub.";
-      };
-
-      runtimedir = mkOption {
-        type = types.str;
-        default = "/tmp/vuserver/run";
-        description = "Runtime directory for www files and PID.";
-      };
-
-      statedir = mkOption {
-        type = types.str;
-        default = "/tmp/vuserver/state";
-        description = "State directory for database and key file.";
-      };
-
-      logsdir = mkOption {
-        type = types.str;
-        default = "/tmp/vuserver/logs";
-        description = "Log directory.";
-      };
-
-      key = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        description = "API key for vuclient to authenticate with vuserver. If null, reads from statedir/key at runtime.";
-      };
-    }
-    // lib.optionalAttrs (!isDarwin) {
-      user = mkOption {
-        type = types.str;
-        default = "vudials";
-        description = "User account under which VU Dials runs.";
-      };
-
-      group = mkOption {
-        type = types.str;
-        default = "vudials";
-        description = "Group under which VU Dials runs.";
-      };
+    port = mkOption {
+      type = types.port;
+      default = 5340;
+      description = "Port on which VU Server listens.";
     };
+
+    cpudial = mkOption {
+      type = types.str;
+      default = "";
+      description = "UID of the dial that will display CPU load.";
+    };
+
+    gpudial = mkOption {
+      type = types.str;
+      default = "";
+      description = "UID of the dial that will display GPU load.";
+    };
+
+    memdial = mkOption {
+      type = types.str;
+      default = "";
+      description = "UID of the dial that will display memory load.";
+    };
+
+    dskdial = mkOption {
+      type = types.str;
+      default = "";
+      description = "UID of the dial that will display disk usage on root partition.";
+    };
+  }
+  // lib.optionalAttrs isDarwin {
+    device = mkOption {
+      type = types.str;
+      default = "/dev/cu.usbserial-DQ0164KM";
+      description = "Serial device path for the VU1 hub.";
+    };
+
+    runtimedir = mkOption {
+      type = types.str;
+      default = "/tmp/vuserver/run";
+      description = "Runtime directory for www files and PID.";
+    };
+
+    statedir = mkOption {
+      type = types.str;
+      default = "/tmp/vuserver/state";
+      description = "State directory for database and key file.";
+    };
+
+    logsdir = mkOption {
+      type = types.str;
+      default = "/tmp/vuserver/logs";
+      description = "Log directory.";
+    };
+
+    key = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "API key for vuclient to authenticate with vuserver. If null, reads from statedir/key at runtime.";
+    };
+  }
+  // lib.optionalAttrs (!isDarwin) {
+    user = mkOption {
+      type = types.str;
+      default = "vudials";
+      description = "User account under which VU Dials runs.";
+    };
+
+    group = mkOption {
+      type = types.str;
+      default = "vudials";
+      description = "Group under which VU Dials runs.";
+    };
+  };
 
   config = mkIf cfg.enable (
     {
@@ -170,7 +169,6 @@ in {
           LogsDirectory = "vuserver";
           StateDirectory = "vuserver";
           TimeoutStopSec = "1s";
-
           Environment = [
             "STATEDIR=%S/vuserver"
             "LOGSDIR=%L/vuserver"
