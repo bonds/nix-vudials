@@ -32,42 +32,42 @@ python3Packages.buildPythonApplication rec {
   dontBuild = true;
 
   patchPhase = ''
-    substituteInPlace dials/base_logger.py \
-      --replace "logFile = f'/home/{getpass.getuser()}/KaranovicResearch/vudials/server.log'" \
-                "logFile = os.path.join(os.environ.get('LOGSDIR'), 'vuserver.log')"
-    substituteInPlace dials/base_logger.py \
-      --replace "logFile = f'~/Library/Logs/KaranovicResearch/vudials/server.log'" \
-                "logFile = os.path.join(os.environ.get('LOGSDIR'), 'vuserver.log')"
-    substituteInPlace server.py \
-      --replace "pid_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)" \
-                "pid_file = os.path.join(os.environ.get('RUNTIMEDIR'), 'pid')"
-    substituteInPlace server.py \
-      --replace "WEB_ROOT = os.path.join(BASEDIR_PATH, 'www')" \
-                "WEB_ROOT = os.path.join(os.environ.get('RUNTIMEDIR'), 'www')"
-    substituteInPlace database.py \
-      --replace "database_path = os.path.join(os.path.dirname(__file__))" \
-                "database_path = os.environ.get('STATEDIR')"
-    substituteInPlace server_config.py \
-      --replace "'port': 3000" \
-                "'port': os.environ.get('PORT')"
-    substituteInPlace server_config.py \
-      --replace "'master_key': 'cTpAWYuRpA2zx75Yh961Cg'" \
-                "'master_key': os.environ.get('KEY')"
+        substituteInPlace dials/base_logger.py \
+          --replace "logFile = f'/home/{getpass.getuser()}/KaranovicResearch/vudials/server.log'" \
+                    "logFile = os.path.join(os.environ.get('LOGSDIR'), 'vuserver.log')"
+        substituteInPlace dials/base_logger.py \
+          --replace "logFile = f'~/Library/Logs/KaranovicResearch/vudials/server.log'" \
+                    "logFile = os.path.join(os.environ.get('LOGSDIR'), 'vuserver.log')"
+        substituteInPlace server.py \
+          --replace "pid_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)" \
+                    "pid_file = os.path.join(os.environ.get('RUNTIMEDIR'), 'pid')"
+        substituteInPlace server.py \
+          --replace "WEB_ROOT = os.path.join(BASEDIR_PATH, 'www')" \
+                    "WEB_ROOT = os.path.join(os.environ.get('RUNTIMEDIR'), 'www')"
+        substituteInPlace database.py \
+          --replace "database_path = os.path.join(os.path.dirname(__file__))" \
+                    "database_path = os.environ.get('STATEDIR')"
+        substituteInPlace server_config.py \
+          --replace "'port': 3000" \
+                    "'port': os.environ.get('PORT')"
+        substituteInPlace server_config.py \
+          --replace "'master_key': 'cTpAWYuRpA2zx75Yh961Cg'" \
+                    "'master_key': os.environ.get('KEY')"
 
-    substituteInPlace serial_driver.py \
-      --replace "import time" \
-                "import os
-import sys
-import time"
-    substituteInPlace serial_driver.py \
-      --replace "            while self.port.in_waiting:" \
-                "            try:
-                port_in_waiting = self.port.in_waiting
-            except OSError as e:
-                if e.errno == 6:
-                    sys.exit(0)
-                raise
-            while port_in_waiting:"
+        substituteInPlace serial_driver.py \
+          --replace "import time" \
+                    "import os
+    import sys
+    import time"
+        substituteInPlace serial_driver.py \
+          --replace "            while self.port.in_waiting:" \
+                    "            try:
+                    port_in_waiting = self.port.in_waiting
+                except OSError as e:
+                    if e.errno == 6:
+                        sys.exit(0)
+                    raise
+                while port_in_waiting:"
   '';
 
   installPhase = ''
