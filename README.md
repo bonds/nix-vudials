@@ -2,6 +2,8 @@
 
 *This README was written by AI (Deepseek v4 Pro). I apologize for any shortcomings.*
 
+![VU dials demo](demo.gif)
+
 Nix flake providing packages and a service module for [VU dials](https://github.com/SasaKaranovic/VU-Server) — USB-connected analog gauges that display system metrics.
 
 Contains:
